@@ -19,6 +19,11 @@ add_executable(
     src/self_tests.cpp
 )
 
+add_executable(
+    benchmark_generator
+    benchmark_generator.cpp
+)
+
 target_include_directories(
     search_engine
     PRIVATE
