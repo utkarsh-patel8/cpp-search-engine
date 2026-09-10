@@ -35,6 +35,7 @@ Each worker processes a non-overlapping contiguous range of documents and owns a
 ```text
 cpp-search-engine/
 ├── CMakeLists.txt
+├── benchmark_generator.cpp
 ├── include/
 │   └── search_engine.hpp
 ├── sample_documents/
@@ -137,14 +138,38 @@ Sorted document IDs support linear posting-list intersection, while sorted posit
 
 ## Ranking
 
-Multi-term results are ranked with BM25 using:
+Multi-term results are ranked with BM25. For a document $D$ and query $Q$:
 
-- `k1 = 1.5`
-- `b = 0.75`
-- document frequency–based inverse document frequency
-- document-length normalization
+$$
+\operatorname{score}(D,Q)
+=
+\sum_{t \in Q}
+\operatorname{IDF}(t)
+\cdot
+\frac{f(t,D)(k_1+1)}
+{f(t,D)+k_1\left(1-b+b\frac{|D|}{\operatorname{avgdl}}\right)}
+$$
 
-A bounded min-heap retains only the best K candidates, avoiding a full sort when the result set is large. Ties are resolved by document ID for deterministic output.
+where:
+
+$$
+\operatorname{IDF}(t)
+=
+\ln\left(
+1+
+\frac{N-n(t)+0.5}{n(t)+0.5}
+\right)
+$$
+
+- $f(t,D)$ is the frequency of term $t$ in document $D$.
+- $|D|$ is the number of tokens in document $D$.
+- $\operatorname{avgdl}$ is the average indexed-document length.
+- $N$ is the total number of indexed documents.
+- $n(t)$ is the number of documents containing $t$.
+- $k_1=1.5$ controls term-frequency saturation.
+- $b=0.75$ controls document-length normalization.
+
+Repeated query terms are processed only once. A bounded min-heap retains only the best K candidates, avoiding a full sort when the result set is large. Ties are resolved by document ID for deterministic output.
 
 ## Persistence
 
@@ -189,6 +214,39 @@ Tests failed: 0
 ```
 
 ## Performance
+
+### Generate the benchmark corpus
+
+Compile the deterministic corpus generator from the project root:
+
+```powershell
+& "C:\msys64\ucrt64\bin\g++.exe" `
+    -std=c++17 -O2 -Wall -Wextra `
+    benchmark_generator.cpp `
+    -o benchmark_generator.exe
+```
+
+Run it without arguments to reproduce the standard corpus of 2,000 documents with approximately 500 generated words per document:
+
+```powershell
+.\benchmark_generator.exe
+```
+
+The generated files are written to `benchmark_documents/`, with 100 files per subdirectory. The directory is intentionally excluded from Git.
+
+The generator also accepts custom values:
+
+```powershell
+.\benchmark_generator.exe <document-count> <words-per-document> <output-folder>
+```
+
+For example:
+
+```powershell
+.\benchmark_generator.exe 5000 750 benchmark_documents_large
+```
+
+Generation is deterministic: identical arguments produce identical document contents. The generator refuses to overwrite an existing output folder, preventing stale files from contaminating benchmark results.
 
 ### Benchmark environment
 
