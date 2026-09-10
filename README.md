@@ -138,36 +138,36 @@ Sorted document IDs support linear posting-list intersection, while sorted posit
 
 ## Ranking
 
-Multi-term results are ranked with BM25. For a document $D$ and query $Q$:
+Multi-term results are ranked with BM25. For a document `D` and query `Q`:
 
-$$
-\operatorname{score}(D,Q)
+```math
+S(D,Q)
 =
 \sum_{t \in Q}
-\operatorname{IDF}(t)
+IDF(t)
 \cdot
 \frac{f(t,D)(k_1+1)}
-{f(t,D)+k_1\left(1-b+b\frac{|D|}{\operatorname{avgdl}}\right)}
-$$
+{f(t,D)+k_1\left(1-b+b\frac{|D|}{avgdl}\right)}
+```
 
 where:
 
-$$
-\operatorname{IDF}(t)
+```math
+IDF(t)
 =
 \ln\left(
 1+
 \frac{N-n(t)+0.5}{n(t)+0.5}
 \right)
-$$
+```
 
-- $f(t,D)$ is the frequency of term $t$ in document $D$.
-- $|D|$ is the number of tokens in document $D$.
-- $\operatorname{avgdl}$ is the average indexed-document length.
-- $N$ is the total number of indexed documents.
-- $n(t)$ is the number of documents containing $t$.
-- $k_1=1.5$ controls term-frequency saturation.
-- $b=0.75$ controls document-length normalization.
+- `f(t,D)` is the frequency of term `t` in document `D`.
+- `|D|` is the number of tokens in document `D`.
+- `avgdl` is the average indexed-document length.
+- `N` is the total number of indexed documents.
+- `n(t)` is the number of documents containing `t`.
+- `k1 = 1.5` controls term-frequency saturation.
+- `b = 0.75` controls document-length normalization.
 
 Repeated query terms are processed only once. A bounded min-heap retains only the best K candidates, avoiding a full sort when the result set is large. Ties are resolved by document ID for deterministic output.
 
