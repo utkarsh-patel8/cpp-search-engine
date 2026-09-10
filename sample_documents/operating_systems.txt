@@ -1,0 +1,1 @@
+An operating system manages processes, memory and files. Process scheduling decides which process receives CPU time.

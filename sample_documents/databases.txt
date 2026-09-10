@@ -1,0 +1,1 @@
+A database stores and retrieves structured information. Database indexes improve query performance.

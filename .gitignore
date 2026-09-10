@@ -1,0 +1,26 @@
+# CMake output
+build/
+cmake-build-*/
+
+# Compiled files
+*.exe
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.pdb
+
+# Generated search index
+search_index.bin
+
+# Generated benchmark corpus
+benchmark_documents/
+
+# Editor files
+.vscode/
+.idea/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
